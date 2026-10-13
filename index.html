@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rekomendasi Produk & Dashboard Affiliate</title>
+  <title>Rekomendasi Produk - Affiliate Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -14,15 +14,17 @@
 </head>
 <body class="bg-[#f8f9fa] min-h-screen pb-20">
 
-  <!-- Navigation Bar (Switch Tab) -->
+  <!-- Navigation Bar -->
   <nav class="bg-white border-b sticky top-0 z-30 shadow-sm">
     <div class="max-w-md mx-auto px-4 flex justify-between items-center h-14">
-      <div class="flex items-center gap-2">
+      <!-- Logo & Nama (Area Ketukan Rahasia) -->
+      <div id="secret-logo-area" class="flex items-center gap-2 cursor-pointer select-none">
         <span class="text-xl">🛍️</span>
         <span class="font-extrabold text-gray-800 text-sm tracking-tight">AffiliateHub</span>
       </div>
-      <!-- Tab Switcher -->
-      <div class="flex bg-gray-100 p-1 rounded-xl text-xs font-bold">
+
+      <!-- Tab Switcher (Sembunyi / Hidden secara default untuk Publik) -->
+      <div id="admin-nav" class="hidden bg-gray-100 p-1 rounded-xl text-xs font-bold">
         <button id="tab-katalog-btn" onclick="switchTab('katalog')" class="px-3 py-1.5 rounded-lg bg-white text-orange-600 shadow-sm transition">
           Katalog
         </button>
@@ -135,7 +137,7 @@
     </div>
   </div>
 
-  <!-- Firebase Script -->
+  <!-- Firebase Script & Secret Mode Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -157,7 +159,34 @@
     let allProducts = {};
     let currentCategory = 'Semua';
 
-    // 1. Switch Navigation Tab (Katalog / Admin)
+    // ================= LOGIKA KETUKAN RAHASIA (SECRET TAP) =================
+    let secretClickCount = 0;
+    let clickTimeout;
+    const SECRET_PIN = "1234"; // SILAKAN GANTI PIN INI SESUAI KEINGINANMU!
+
+    document.getElementById('secret-logo-area').addEventListener('click', () => {
+      secretClickCount++;
+      clearTimeout(clickTimeout);
+
+      if (secretClickCount === 5) {
+        const inputPin = prompt("🔑 Masukkan PIN Rahasia Admin:");
+        if (inputPin === SECRET_PIN) {
+          document.getElementById('admin-nav').classList.remove('hidden');
+          alert(" Mode Admin Aktif!");
+          switchTab('admin');
+        } else if (inputPin !== null) {
+          alert("❌ PIN Salah!");
+        }
+        secretClickCount = 0;
+      }
+
+      // Reset hitungan jika jeda antar ketukan lebih dari 1.5 detik
+      clickTimeout = setTimeout(() => {
+        secretClickCount = 0;
+      }, 1500);
+    });
+
+    // ================= SWITCH TAB NAVIGASI =================
     window.switchTab = (tab) => {
       const viewKatalog = document.getElementById('view-katalog');
       const viewAdmin = document.getElementById('view-admin');
@@ -177,14 +206,14 @@
       }
     };
 
-    // 2. Realtime Listener
+    // ================= FETCH & LISTEN DATA REALTIME =================
     onValue(productsRef, (snapshot) => {
       allProducts = snapshot.val() || {};
       renderKatalog();
       renderAdminTable();
     });
 
-    // 3. Render Katalog
+    // ================= RENDER KATALOG PUBLIK =================
     function renderKatalog() {
       const grid = document.getElementById('product-grid');
       const searchQuery = document.getElementById('search-input').value.toLowerCase();
@@ -226,11 +255,11 @@
       });
 
       if (count === 0) {
-        grid.innerHTML = `<div class="col-span-2 text-center py-10 text-gray-400 text-xs">Belum ada produk.</div>`;
+        grid.innerHTML = `<div class="col-span-2 text-center py-10 text-gray-400 text-xs">Belum ada produk ditemukan.</div>`;
       }
     }
 
-    // 4. Render Tabel Admin
+    // ================= RENDER TABEL ADMIN =================
     function renderAdminTable() {
       const tbody = document.getElementById('admin-product-list');
       tbody.innerHTML = '';
@@ -259,7 +288,7 @@
       });
     }
 
-    // 5. Form Tambah Produk
+    // ================= FORM SUBMIT PRODUK =================
     document.getElementById('add-product-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const newProduct = {
@@ -275,11 +304,11 @@
       push(productsRef, newProduct).then(() => {
         alert('Produk berhasil ditambahkan!');
         document.getElementById('add-product-form').reset();
-        switchTab('katalog'); // Otomatis pindah ke tab katalog untuk melihat hasilnya
+        switchTab('katalog'); // Langsung beralih ke katalog untuk meninjau hasilnya
       });
     });
 
-    // 6. Delete & Click Action
+    // ================= HAPUS PRODUK & CLICK TRACKER =================
     window.deleteProduct = (id) => {
       if (confirm('Hapus produk ini?')) remove(ref(db, `products/${id}`));
     };
