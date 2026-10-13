@@ -3,47 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rekomendasi Produk Pilihan</title>
+  <title>Rekomendasi Produk Pilihan - Affiliate Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font & Tailwind Icons (Optional) -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 </head>
-<body class="bg-gray-50 font-sans min-h-screen pb-12">
+<body class="bg-[#f8f9fa] min-h-screen pb-16">
 
-  <!-- Header / Profile Bio -->
-  <header class="bg-white border-b sticky top-0 z-10">
-    <div class="max-w-md mx-auto px-4 py-6 text-center">
-      <div class="w-20 h-20 mx-auto rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-2xl mb-3 shadow">
+  <!-- Header dengan Gradasi Vibrant -->
+  <header class="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white rounded-b-[2rem] shadow-lg sticky top-0 z-20 pb-5">
+    <div class="max-w-md mx-auto px-5 pt-6 text-center">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 mb-3 text-3xl shadow-inner">
         🛍️
       </div>
-      <h1 class="text-xl font-bold text-gray-800">Rekomendasi Produk</h1>
-      <p class="text-xs text-gray-500 mt-1">Klik produk untuk langsung beli di Shopee!</p>
+      <h1 class="text-xl font-extrabold tracking-tight">Rekomendasi Produk</h1>
+      <p class="text-xs text-white/80 mt-1 font-medium">Klik produk favoritmu & belanja langsung di Shopee!</p>
       
-      <!-- Input Search -->
-      <div class="mt-4">
-        <input type="text" id="search-input" placeholder="Cari produk..." 
-          class="w-full text-sm px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
+      <!-- Input Search dengan Ikon Kaca Pembesar -->
+      <div class="mt-4 relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">🔍</span>
+        <input type="text" id="search-input" placeholder="Cari barang impianmu di sini..." 
+          class="w-full text-sm pl-10 pr-4 py-3 rounded-2xl border-none focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white text-gray-800 shadow-md transition-all">
       </div>
 
-      <!-- Filter Kategori -->
-      <div class="flex gap-2 overflow-x-auto py-3 no-scrollbar text-xs" id="category-filter">
-        <button onclick="filterCategory('Semua')" class="px-3 py-1 rounded-full bg-blue-600 text-white whitespace-nowrap active-cat">Semua</button>
-        <button onclick="filterCategory('Elektronik')" class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap">Elektronik</button>
-        <button onclick="filterCategory('Fashion')" class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap">Fashion</button>
-        <button onclick="filterCategory('Home Decor')" class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap">Home Decor</button>
-        <button onclick="filterCategory('Kecantikan')" class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap">Kecantikan</button>
-        <button onclick="filterCategory('Lainnya')" class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap">Lainnya</button>
+      <!-- Filter Kategori Kapsul (Horizontal Scrolling) -->
+      <div class="flex gap-2 overflow-x-auto pt-4 no-scrollbar text-xs font-semibold" id="category-filter">
+        <button onclick="filterCategory('Semua')" class="px-4 py-2 rounded-xl bg-white text-orange-600 shadow-md whitespace-nowrap transition-all duration-200" id="btn-Semua">Semua</button>
+        <button onclick="filterCategory('Elektronik')" class="px-4 py-2 rounded-xl bg-white/20 text-white hover:bg-white/30 whitespace-nowrap transition-all duration-200" id="btn-Elektronik">Elektronik</button>
+        <button onclick="filterCategory('Fashion')" class="px-4 py-2 rounded-xl bg-white/20 text-white hover:bg-white/30 whitespace-nowrap transition-all duration-200" id="btn-Fashion">Fashion</button>
+        <button onclick="filterCategory('Home Decor')" class="px-4 py-2 rounded-xl bg-white/20 text-white hover:bg-white/30 whitespace-nowrap transition-all duration-200" id="btn-HomeDecor">Home Decor</button>
+        <button onclick="filterCategory('Kecantikan')" class="px-4 py-2 rounded-xl bg-white/20 text-white hover:bg-white/30 whitespace-nowrap transition-all duration-200" id="btn-Kecantikan">Kecantikan</button>
+        <button onclick="filterCategory('Lainnya')" class="px-4 py-2 rounded-xl bg-white/20 text-white hover:bg-white/30 whitespace-nowrap transition-all duration-200" id="btn-Lainnya">Lainnya</button>
       </div>
     </div>
   </header>
 
-  <!-- Product Grid -->
+  <!-- Daftar Grid Produk -->
   <main class="max-w-md mx-auto px-4 mt-6">
-    <div id="product-grid" class="grid grid-cols-2 gap-3">
+    <div id="product-grid" class="grid grid-cols-2 gap-4">
       <!-- Card produk akan di-generate via JS -->
-      <div class="col-span-2 text-center py-10 text-gray-400">Memuat produk...</div>
+      <div class="col-span-2 text-center py-12 text-gray-400 text-sm">
+        <div class="animate-pulse flex flex-col items-center">
+          <div class="w-12 h-12 rounded-full bg-gray-200 mb-3"></div>
+          <span>Memuat produk terbaik untukmu...</span>
+        </div>
+      </div>
     </div>
   </main>
 
-  <!-- Firebase & Logic Script -->
+  <!-- Script Firebase & Logika -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -65,13 +78,13 @@
     let allProducts = {};
     let currentCategory = 'Semua';
 
-    // 1. Fetch & Tampilkan Produk
+    // Ambil Data Produk
     onValue(productsRef, (snapshot) => {
       allProducts = snapshot.val() || {};
       renderProducts();
     });
 
-    // 2. Render Card Produk
+    // Render HTML Card Produk
     function renderProducts() {
       const grid = document.getElementById('product-grid');
       const searchQuery = document.getElementById('search-input').value.toLowerCase();
@@ -88,18 +101,27 @@
         if (matchCategory && matchSearch) {
           count++;
           const card = document.createElement('div');
-          card.className = 'bg-white rounded-lg border shadow-sm overflow-hidden flex flex-col justify-between';
+          card.className = 'bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col justify-between';
           card.innerHTML = `
             <div>
-              <img src="${item.image_url}" alt="${item.title}" class="w-full h-36 object-cover bg-gray-100" onerror="this.src='https://via.placeholder.com/150'">
-              <div class="p-2.5">
-                <span class="text-[10px] uppercase font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">${item.category}</span>
-                <h3 class="text-xs font-semibold text-gray-800 mt-1 line-clamp-2 leading-snug">${item.title}</h3>
-                <p class="text-xs font-bold text-orange-600 mt-2">Rp ${item.price.toLocaleString('id-ID')}</p>
+              <div class="relative">
+                <img src="${item.image_url}" alt="${item.title}" class="w-full h-40 object-cover bg-gray-50" onerror="this.src='https://via.placeholder.com/150'">
+                <span class="absolute top-2 left-2 text-[9px] uppercase font-bold tracking-wider text-orange-700 bg-orange-100 px-2 py-1 rounded-lg">
+                  ${item.category}
+                </span>
+              </div>
+              <div class="p-3">
+                <h3 class="text-xs font-semibold text-gray-800 line-clamp-2 leading-relaxed min-h-[36px]">
+                  ${item.title}
+                </h3>
+                <div class="flex items-baseline gap-1 mt-2">
+                  <span class="text-[10px] text-gray-400 font-semibold">Rp</span>
+                  <span class="text-sm font-extrabold text-orange-600">${item.price.toLocaleString('id-ID')}</span>
+                </div>
               </div>
             </div>
-            <div class="p-2.5 pt-0">
-              <button onclick="handleClick('${id}', '${item.affiliate_url}')" class="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold py-2 rounded-md transition text-center block">
+            <div class="p-3 pt-0">
+              <button onclick="handleClick('${id}', '${item.affiliate_url}')" class="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-xs font-bold py-2.5 rounded-xl transition duration-200 text-center shadow-sm shadow-orange-500/20 active:scale-95">
                 Beli di Shopee
               </button>
             </div>
@@ -109,35 +131,41 @@
       });
 
       if (count === 0) {
-        grid.innerHTML = `<div class="col-span-2 text-center py-10 text-gray-400 text-sm">Tidak ada produk ditemukan.</div>`;
+        grid.innerHTML = `
+          <div class="col-span-2 text-center py-12 text-gray-400 text-sm">
+            😔 Tidak ada produk yang cocok. Coba cari yang lain!
+          </div>`;
       }
     }
 
-    // 3. Filter & Search Event Listener
+    // Input Search Event
     document.getElementById('search-input').addEventListener('input', renderProducts);
 
+    // Kategori Filter Toggle State
     window.filterCategory = (cat) => {
       currentCategory = cat;
+      const idSearch = cat.replace(' ', '');
       const buttons = document.querySelectorAll('#category-filter button');
+      
       buttons.forEach(btn => {
-        if (btn.innerText === cat) {
-          btn.className = "px-3 py-1 rounded-full bg-blue-600 text-white whitespace-nowrap";
-        } else {
-          btn.className = "px-3 py-1 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap";
-        }
+        btn.className = "px-4 py-2 rounded-xl bg-white/20 text-white hover:bg-white/30 whitespace-nowrap transition-all duration-200";
       });
+
+      // Highlight Tombol Aktif
+      const activeBtn = document.getElementById(`btn-${idSearch}`);
+      if (activeBtn) {
+        activeBtn.className = "px-4 py-2 rounded-xl bg-white text-orange-600 shadow-md whitespace-nowrap transition-all duration-200";
+      }
+
       renderProducts();
     };
 
-    // 4. Counter Klik & Buka Link Affiliate
+    // Redirection Klik
     window.handleClick = (id, targetUrl) => {
       const clickRef = ref(db, `products/${id}/click_count`);
-      
-      // Tambahkan angka statistik +1 di database secara akurat
       runTransaction(clickRef, (currentCount) => {
         return (currentCount || 0) + 1;
       }).finally(() => {
-        // Buka link affiliate Shopee di tab baru
         window.open(targetUrl, '_blank');
       });
     };
