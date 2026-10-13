@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekomendasi Produk Pilihan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen pb-12">
+
+  <!-- Header / Profile Bio -->
+  <header class="bg-white border-b sticky top-0 z-10">
+    <div class="max-w-md mx-auto px-4 py-6 text-center">
+      <div class="w-20 h-20 mx-auto rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-2xl mb-3 shadow">
+        🛍️
+      </div>
+      <h1 class="text-xl font-bold text-gray-800">Rekomendasi Produk</h1>
+      <p class="text-xs text-gray-500 mt-1">Klik produk untuk langsung beli di Shopee!</p>
+      
+      <!-- Input Search -->
+      <div class="mt-4">
+        <input type="text" id="search-input" placeholder="Cari produk..." 
+          class="w-full text-sm px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50">
+      </div>
+
+      <!-- Filter Kategori -->
+      <div class="flex gap-2 overflow-x-auto py-3 no-scrollbar text-xs" id="category-filter">
+        <button onclick="filterCategory('Semua')" class="px-3 py-1 rounded-full bg-blue-600 text-white whitespace-nowrap active-cat">Semua</button>
+        <button onclick="filterCategory('Elektronik')" class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap">Elektronik</button>
+        <button onclick="filterCategory('Fashion')" class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap">Fashion</button>
+        <button onclick="filterCategory('Home Decor')" class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap">Home Decor</button>
+        <button onclick="filterCategory('Kecantikan')" class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap">Kecantikan</button>
+        <button onclick="filterCategory('Lainnya')" class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap">Lainnya</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Product Grid -->
+  <main class="max-w-md mx-auto px-4 mt-6">
+    <div id="product-grid" class="grid grid-cols-2 gap-3">
+      <!-- Card produk akan di-generate via JS -->
+      <div class="col-span-2 text-center py-10 text-gray-400">Memuat produk...</div>
+    </div>
+  </main>
+
+  <!-- Firebase & Logic Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDmaNHJfkPGwF3as7rCNhxoqDUxmoGqocI",
+      authDomain: "dashboard-affiliate-d2343.firebaseapp.com",
+      databaseURL: "https://dashboard-affiliate-d2343-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "dashboard-affiliate-d2343",
+      storageBucket: "dashboard-affiliate-d2343.firebasestorage.app",
+      messagingSenderId: "780596598828",
+      appId: "1:780596598828:web:b450deef4990936a68d989"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const productsRef = ref(db, 'products');
+
+    let allProducts = {};
+    let currentCategory = 'Semua';
+
+    // 1. Fetch & Tampilkan Produk
+    onValue(productsRef, (snapshot) => {
+      allProducts = snapshot.val() || {};
+      renderProducts();
+    });
+
+    // 2. Render Card Produk
+    function renderProducts() {
+      const grid = document.getElementById('product-grid');
+      const searchQuery = document.getElementById('search-input').value.toLowerCase();
+      grid.innerHTML = '';
+
+      const keys = Object.keys(allProducts);
+      let count = 0;
+
+      keys.forEach((id) => {
+        const item = allProducts[id];
+        const matchCategory = currentCategory === 'Semua' || item.category === currentCategory;
+        const matchSearch = item.title.toLowerCase().includes(searchQuery);
+
+        if (matchCategory && matchSearch) {
+          count++;
+          const card = document.createElement('div');
+          card.className = 'bg-white rounded-lg border shadow-sm overflow-hidden flex flex-col justify-between';
+          card.innerHTML = `
+            <div>
+              <img src="${item.image_url}" alt="${item.title}" class="w-full h-36 object-cover bg-gray-100" onerror="this.src='https://via.placeholder.com/150'">
+              <div class="p-2.5">
+                <span class="text-[10px] uppercase font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">${item.category}</span>
+                <h3 class="text-xs font-semibold text-gray-800 mt-1 line-clamp-2 leading-snug">${item.title}</h3>
+                <p class="text-xs font-bold text-orange-600 mt-2">Rp ${item.price.toLocaleString('id-ID')}</p>
+              </div>
+            </div>
+            <div class="p-2.5 pt-0">
+              <button onclick="handleClick('${id}', '${item.affiliate_url}')" class="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold py-2 rounded-md transition text-center block">
+                Beli di Shopee
+              </button>
+            </div>
+          `;
+          grid.appendChild(card);
+        }
+      });
+
+      if (count === 0) {
+        grid.innerHTML = `<div class="col-span-2 text-center py-10 text-gray-400 text-sm">Tidak ada produk ditemukan.</div>`;
+      }
+    }
+
+    // 3. Filter & Search Event Listener
+    document.getElementById('search-input').addEventListener('input', renderProducts);
+
+    window.filterCategory = (cat) => {
+      currentCategory = cat;
+      const buttons = document.querySelectorAll('#category-filter button');
+      buttons.forEach(btn => {
+        if (btn.innerText === cat) {
+          btn.className = "px-3 py-1 rounded-full bg-blue-600 text-white whitespace-nowrap";
+        } else {
+          btn.className = "px-3 py-1 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap";
+        }
+      });
+      renderProducts();
+    };
+
+    // 4. Counter Klik & Buka Link Affiliate
+    window.handleClick = (id, targetUrl) => {
+      const clickRef = ref(db, `products/${id}/click_count`);
+      
+      // Tambahkan angka statistik +1 di database secara akurat
+      runTransaction(clickRef, (currentCount) => {
+        return (currentCount || 0) + 1;
+      }).finally(() => {
+        // Buka link affiliate Shopee di tab baru
+        window.open(targetUrl, '_blank');
+      });
+    };
+  </script>
+</body>
+</html>

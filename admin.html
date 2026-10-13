@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin - Shopee Affiliate</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6 text-gray-800">Dashboard Admin Affiliate</h1>
+
+    <!-- Form Tambah Produk -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+      <h2 class="text-lg font-semibold mb-4 text-gray-700">Tambah Produk Baru</h2>
+      <form id="add-product-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-600">Judul Produk</label>
+          <input type="text" id="title" required class="w-full mt-1 p-2 border rounded-md" placeholder="Kipas Angin Mini Portable">
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-600">Kategori</label>
+            <select id="category" class="w-full mt-1 p-2 border rounded-md">
+              <option value="Elektronik">Elektronik</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Home Decor">Home Decor</option>
+              <option value="Kecantikan">Kecantikan</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600">Harga (Rp)</label>
+            <input type="number" id="price" required class="w-full mt-1 p-2 border rounded-md" placeholder="35000">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-600">URL Gambar Produk</label>
+          <input type="url" id="image_url" required class="w-full mt-1 p-2 border rounded-md" placeholder="https://...">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-600">Link Affiliate Shopee</label>
+          <input type="url" id="affiliate_url" required class="w-full mt-1 p-2 border rounded-md" placeholder="https://s.shopee.co.id/...">
+        </div>
+
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition">
+          Simpan Produk
+        </button>
+      </form>
+    </div>
+
+    <!-- Tabel Daftar Produk -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-lg font-semibold mb-4 text-gray-700">Daftar Produk Tersimpan</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b bg-gray-50 text-gray-600 text-sm">
+              <th class="p-3">Gambar</th>
+              <th class="p-3">Judul</th>
+              <th class="p-3">Kategori</th>
+              <th class="p-3">Harga</th>
+              <th class="p-3">Klik</th>
+              <th class="p-3">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="product-list" class="divide-y">
+            <!-- Data produk akan muncul di sini via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script Firebase & Logika Admin -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDmaNHJfkPGwF3as7rCNhxoqDUxmoGqocI",
+      authDomain: "dashboard-affiliate-d2343.firebaseapp.com",
+      databaseURL: "https://dashboard-affiliate-d2343-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "dashboard-affiliate-d2343",
+      storageBucket: "dashboard-affiliate-d2343.firebasestorage.app",
+      messagingSenderId: "780596598828",
+      appId: "1:780596598828:web:b450deef4990936a68d989"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const productsRef = ref(db, 'products');
+
+    // 1. Simpan Produk Baru
+    document.getElementById('add-product-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const newProduct = {
+        title: document.getElementById('title').value,
+        category: document.getElementById('category').value,
+        price: Number(document.getElementById('price').value),
+        image_url: document.getElementById('image_url').value,
+        affiliate_url: document.getElementById('affiliate_url').value,
+        click_count: 0,
+        created_at: new Date().toISOString()
+      };
+
+      push(productsRef, newProduct)
+        .then(() => {
+          alert('Produk berhasil disimpan!');
+          document.getElementById('add-product-form').reset();
+        })
+        .catch((error) => alert('Gagal menyimpan: ' + error.message));
+    });
+
+    // 2. Tampilkan Daftar Produk secara Realtime
+    onValue(productsRef, (snapshot) => {
+      const productList = document.getElementById('product-list');
+      productList.innerHTML = '';
+      const data = snapshot.val();
+
+      if (!data) {
+        productList.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">Belum ada produk.</td></tr>`;
+        return;
+      }
+
+      Object.keys(data).forEach((id) => {
+        const item = data[id];
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50';
+        row.innerHTML = `
+          <td class="p-3"><img src="${item.image_url}" class="w-12 h-12 object-cover rounded"></td>
+          <td class="p-3 font-medium text-gray-800">${item.title}</td>
+          <td class="p-3 text-sm text-gray-600">${item.category}</td>
+          <td class="p-3 text-sm font-semibold">Rp ${item.price.toLocaleString('id-ID')}</td>
+          <td class="p-3 text-sm text-blue-600 font-bold">${item.click_count || 0}</td>
+          <td class="p-3">
+            <button onclick="deleteProduct('${id}')" class="text-red-500 hover:text-red-700 text-sm">Hapus</button>
+          </td>
+        `;
+        productList.appendChild(row);
+      });
+    });
+
+    // 3. Fungsi Hapus Produk
+    window.deleteProduct = (id) => {
+      if (confirm('Yakin mau menghapus produk ini?')) {
+        remove(ref(db, `products/${id}`));
+      }
+    };
+  </script>
+</body>
+</html>
